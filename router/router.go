@@ -8,7 +8,20 @@ import (
 func Start() {
 	e := gin.Default()
 
-	e.POST("/api/user/register", controller.Register)
+	//e.Static("/static", "static")
+	//e.LoadHTMLGlob("template/*")
+
+	e.GET("/")
+
+	//router group
+	api := e.Group("api")
+	{
+		//用户路由
+		user := api.Group("user")
+		{
+			user.POST("/register", controller.Register)
+		}
+	}
 
 	err := e.Run()
 	if err != nil {

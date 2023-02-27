@@ -27,6 +27,7 @@ func Register(c *gin.Context) {
 			"code": 422,
 			"msg":  "the phone number must be 11 digits!",
 		})
+		return
 	}
 	//密码校验
 	if len(password) < 6 {
@@ -36,6 +37,7 @@ func Register(c *gin.Context) {
 			"code": 422,
 			"msg":  "password cannot be less than 6 digits!",
 		})
+		return
 	}
 	//用户名校验
 	if len(username) == 0 {
@@ -44,6 +46,14 @@ func Register(c *gin.Context) {
 		username = tools.RandomString(10)
 	}
 	log.Println(username, password, phone)
+	//手机号是否已注册的校验
+	if tools.IsPhoneExist(phone) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code": 422,
+			"msg":  "该手机号已注册!",
+		})
+		return
+	}
 
 	//创建用户
 	user := model.User{

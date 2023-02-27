@@ -10,6 +10,9 @@ import (
 
 type Manager interface {
 	Register(user *model.User)
+	GetUserByPhone(phone string) model.User
+	GetUserByName(username string) model.User
+	GetUserByID(id int) model.User
 }
 
 //封装数据库的db，将db变成manager的database，对数据库操作的db换成了对manager.database的操作
