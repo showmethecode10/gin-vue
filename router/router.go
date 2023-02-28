@@ -20,6 +20,7 @@ func Start() {
 		user := api.Group("user")
 		{
 			user.POST("/register", controller.Register)
+			user.GET("/login", controller.Login)
 		}
 	}
 

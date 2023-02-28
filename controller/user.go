@@ -55,11 +55,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	makePassword := tools.MakePassword(password)
+	fmt.Println("加密之后的密码：", makePassword)
+
 	//创建用户
 	user := model.User{
 		Model:    gorm.Model{},
 		Username: username,
-		Password: password,
+		Password: makePassword,
 		Phone:    phone,
 	}
 	dao.Mgr.Register(&user)
@@ -69,5 +72,50 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"msg":  "register success!",
 		"user": user,
+	})
+}
+
+func Login(c *gin.Context) {
+	//获取参数
+	phone := c.PostForm("phone")
+	password := c.PostForm("password")
+	//数据验证
+	if len(phone) != 11 {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code": 422,
+			"msg":  "手机号必须为11位！",
+		})
+		return
+	}
+	if len(password) < 6 {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code": 422,
+			"msg":  "密码不能少于6位",
+		})
+		return
+	}
+	//判断手机号是否存在
+	if dao.Mgr.GetUserByPhone(phone).Phone == "" {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"code": 422,
+			"msg":  "用户不存在!",
+		})
+		return
+	}
+	//判断密码是否正确
+	if tools.MakePassword(password) != dao.Mgr.GetUserByPhone(phone).Password {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "密码错误！",
+		})
+		return
+	}
+	//发放token
+	token := "11"
+	//返回结果
+	c.JSON(http.StatusOK, gin.H{
+		"code":  200,
+		"token": token,
+		"msg":   "登录成功！",
 	})
 }
