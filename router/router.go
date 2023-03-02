@@ -2,6 +2,7 @@ package router
 
 import (
 	"gin-vue/controller"
+	"gin-vue/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +22,7 @@ func Start() {
 		{
 			user.POST("/register", controller.Register)
 			user.GET("/login", controller.Login)
+			user.GET("/info", middleware.AuthMiddleware(), controller.Info)
 		}
 	}
 

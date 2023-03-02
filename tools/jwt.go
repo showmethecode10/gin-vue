@@ -20,7 +20,7 @@ func ReleaseToken(user model.User) (string, error) {
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 			IssuedAt:  time.Now().Unix(),
-			Issuer:    "ShuwenHe",
+			Issuer:    "oceanlearn.tech",
 			Subject:   "user token",
 		},
 	}

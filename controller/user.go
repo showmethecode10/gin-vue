@@ -110,12 +110,33 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
+
+	user := dao.Mgr.GetUserByPhone(phone)
+
 	//发放token
-	token := "11"
+	token, err := tools.ReleaseToken(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "System err!",
+		})
+		log.Println("token generate err:", err)
+		return
+	}
 	//返回结果
 	c.JSON(http.StatusOK, gin.H{
 		"code":  200,
 		"token": token,
 		"msg":   "登录成功！",
+	})
+}
+
+func Info(c *gin.Context) {
+	value, _ := c.Get("user")
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"data": gin.H{
+			"user": value,
+		},
 	})
 }
