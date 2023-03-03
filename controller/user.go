@@ -3,7 +3,9 @@ package controller
 import (
 	"fmt"
 	"gin-vue/dao"
+	"gin-vue/dto"
 	"gin-vue/model"
+	"gin-vue/response"
 	"gin-vue/tools"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,6 +23,7 @@ func Register(c *gin.Context) {
 	//数据校验
 	//手机号校验
 	if len(phone) != 11 {
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "手机号要不少于11位！")
 		fmt.Println("电话号码少于11位，", len(phone))
 		fmt.Println(phone)
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -31,6 +34,7 @@ func Register(c *gin.Context) {
 	}
 	//密码校验
 	if len(password) < 6 {
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "密码长度少于6位")
 		fmt.Println("密码长度小于6位，", len(password))
 		fmt.Println(password)
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -48,6 +52,7 @@ func Register(c *gin.Context) {
 	log.Println(username, password, phone)
 	//手机号是否已注册的校验
 	if tools.IsPhoneExist(phone) {
+		response.Response(c, http.StatusUnprocessableEntity, 422, nil, "手机号已被注册！")
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"code": 422,
 			"msg":  "该手机号已注册!",
@@ -73,6 +78,7 @@ func Register(c *gin.Context) {
 		"msg":  "register success!",
 		"user": user,
 	})
+	response.Success(c, nil, "注册成功！")
 }
 
 func Login(c *gin.Context) {
@@ -129,14 +135,15 @@ func Login(c *gin.Context) {
 		"token": token,
 		"msg":   "登录成功！",
 	})
+	response.Success(c, gin.H{"token": token}, "登录成功！")
 }
 
 func Info(c *gin.Context) {
-	value, _ := c.Get("user")
+	user, _ := c.Get("user")
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": gin.H{
-			"user": value,
+			"user": dto.ToUserDto(user.(model.User)),
 		},
 	})
 }
